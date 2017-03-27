@@ -12,7 +12,7 @@ module Api::V1
         lectures.push(Lecture.new(l))
       end
 
-      lecture = lectures.detect{ |l|  l.id == params[:id].upcase }
+      lecture = lectures.detect{ |lec|  lec.id == params[:id].upcase }
       json_response(lecture)
     end
 
