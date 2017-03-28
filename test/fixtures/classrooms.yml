@@ -1,6 +1,7 @@
 # Read about fixtures at http://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
 
 one:
+  name: MyString
   date_begin: 2017-03-28
   date_end: 2017-03-28
   kind: kind
