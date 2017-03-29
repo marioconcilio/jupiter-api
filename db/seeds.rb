@@ -10,17 +10,47 @@
 
 require 'json'
 
-json = JSON.parse(File.read("db/jupiterweb.json"))["TODOS"]
-print json.to_json
+def create_schedule(array, classroom)
+  begin
+    time_end = Time.parse(array[2])
+  rescue ArgumentError
+    time_end = nil
+  end
 
-def create_schedule(dict, classroom)
   schedule = Schedule.create(
-    week_day: dict[0],
-    time_begin: Time.parse(dict[1]),
-    time_end: Time.parse(dict[2]),
-    teachers: dict[3],
+    week_day: array[0],
+    time_begin: Time.parse(array[1]),
+    time_end: time_end,
+    teachers: array[3],
     classroom: classroom)
 end
 
-def create_classroom(dict)
+def create_classroom(array, subject)
+  classroom = Classroom.create(
+    code: array[0],
+    date_begin: Date.strptime(array[1], "%d/%m/%Y"),
+    date_end: Date.strptime(array[2], "%d/%m/%Y"),
+    kind: array[3],
+    subject: subject)
+
+  unless array[4].nil?
+    array[4].each do |s|
+      create_schedule(s, classroom)
+    end
+  end
+end
+              
+def create_subject(array)
+  subject = Subject.create(
+    code: array[0],
+    name: array[1])
+
+  array[2].each do |c|
+    create_classroom(c, subject)
+  end
+end
+
+json = JSON.parse(File.read("db/jupiterweb.json"))["TODOS"]
+json.each do |s|
+  create_subject(s)
 end

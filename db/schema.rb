@@ -17,7 +17,6 @@ ActiveRecord::Schema.define(version: 20170329004627) do
 
   create_table "classrooms", force: :cascade do |t|
     t.string   "code"
-    t.string   "name"
     t.date     "date_begin"
     t.date     "date_end"
     t.string   "kind"

@@ -10,10 +10,10 @@ class ClassroomTest < ActiveSupport::TestCase
     assert @classroom.valid?
   end
 
-  test 'invalid without name' do
-    @classroom.name = nil
+  test 'invalid without code' do
+    @classroom.code = nil
     refute @classroom.valid?
-    assert_not_nil @classroom.errors[:name]
+    assert_not_nil @classroom.errors[:code]
   end
 
   test 'invalid without date_begin' do

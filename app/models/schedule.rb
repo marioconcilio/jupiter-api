@@ -1,5 +1,5 @@
 class Schedule < ApplicationRecord
-  validates_presence_of :week_day, :time_begin, :time_end, :teachers
+  validates_presence_of :week_day, :time_begin, :teachers
 
   belongs_to :classroom
 end
