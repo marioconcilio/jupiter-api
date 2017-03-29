@@ -10,7 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20170328211103) do
+ActiveRecord::Schema.define(version: 20170329004627) do
+
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
 
   create_table "classrooms", force: :cascade do |t|
     t.date     "date_begin"
@@ -20,18 +23,18 @@ ActiveRecord::Schema.define(version: 20170328211103) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string   "name"
-    t.index ["subject_id"], name: "index_classrooms_on_subject_id"
+    t.index ["subject_id"], name: "index_classrooms_on_subject_id", using: :btree
   end
 
   create_table "schedules", force: :cascade do |t|
     t.string   "week_day"
     t.time     "time_begin"
     t.time     "time_end"
-    t.string   "teachers"
     t.integer  "classroom_id"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-    t.index ["classroom_id"], name: "index_schedules_on_classroom_id"
+    t.datetime "created_at",                null: false
+    t.datetime "updated_at",                null: false
+    t.string   "teachers",     default: [],              array: true
+    t.index ["classroom_id"], name: "index_schedules_on_classroom_id", using: :btree
   end
 
   create_table "subjects", force: :cascade do |t|
@@ -41,4 +44,6 @@ ActiveRecord::Schema.define(version: 20170328211103) do
     t.string   "code"
   end
 
+  add_foreign_key "classrooms", "subjects"
+  add_foreign_key "schedules", "classrooms"
 end
