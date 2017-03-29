@@ -2,6 +2,7 @@
 
 one:
   name: MyString
+  code: MyString
   date_begin: 2017-03-28
   date_end: 2017-03-28
   kind: kind

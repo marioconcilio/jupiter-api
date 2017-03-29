@@ -2,7 +2,7 @@
 
 one:
   week_day: MyString
-  time_begin: 12:54
-  time_end: 12:55
-  teachers: MyString
+  time_begin: '12:54'
+  time_end: '12:55'
+  teachers: ['MyString', 'MyString']
   classroom: one

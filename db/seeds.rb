@@ -18,8 +18,9 @@ def create_schedule(dict, classroom)
     week_day: dict[0],
     time_begin: Time.parse(dict[1]),
     time_end: Time.parse(dict[2]),
-    teachers: dict[3].join(","),
+    teachers: dict[3],
     classroom: classroom)
 end
 
-
+def create_classroom(dict)
+end
