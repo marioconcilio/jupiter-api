@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   #api
   namespace :api, defaults: {format: 'json'} do
     namespace :v1 do
-      resources :lecture
+      resources :subjects
     end
   end
 
