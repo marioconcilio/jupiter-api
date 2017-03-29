@@ -1,3 +1,8 @@
 class Api::V1::ScheduleSerializer < ActiveModel::Serializer
-  attributes :week_day, :time_begin, :time_end, :teachers
+  attributes :week_day, 
+             :time_begin, 
+             :time_end, 
+             :teachers
+
+  belongs_to :classroom
 end

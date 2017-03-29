@@ -10,7 +10,7 @@ module Api::V1
     # GET /subjects/:id
     def show
       subject = Subject.find_by(code: params[:id].upcase)
-      render json: subject
+      render json: subject, include: ['classrooms', 'classrooms.schedules']
 
       # json_response(subject)
     end
