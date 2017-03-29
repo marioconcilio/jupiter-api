@@ -28,5 +28,6 @@ module JupiterApi
     config.api_only = true
     config.middleware.use Rack::Attack
     config.active_record.time_zone_aware_types = [:datetime]
+    config.encoding = "utf-8"
   end
 end
