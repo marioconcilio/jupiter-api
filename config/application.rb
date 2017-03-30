@@ -29,5 +29,8 @@ module JupiterApi
     config.middleware.use Rack::Attack
     config.active_record.time_zone_aware_types = [:datetime]
     config.encoding = "utf-8"
+    config.generators do |g|
+        g.test_framework :rspec
+    end
   end
 end
