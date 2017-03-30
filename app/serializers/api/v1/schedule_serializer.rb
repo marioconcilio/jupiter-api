@@ -11,6 +11,8 @@ class Api::V1::ScheduleSerializer < ActiveModel::Serializer
   end
 
   def time_end
-    object.time_end.strftime("%H:%M:%SZ")
+    unless object.time_end.nil?
+      object.time_end.strftime("%H:%M:%SZ")
+    end
   end
 end
