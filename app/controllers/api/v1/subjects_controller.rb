@@ -4,7 +4,7 @@ module Api::V1
     # GET /subjects
     def index
       subjects = Subject.all
-      json_response(subjects) 
+      json_response(subjects)
     end
 
     # GET /subjects/:id
