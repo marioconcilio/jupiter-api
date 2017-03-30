@@ -39,7 +39,7 @@ def create_classroom(array, subject)
     end
   end
 end
-              
+
 def create_subject(array)
   subject = Subject.create(
     code: array[0],
@@ -50,6 +50,7 @@ def create_subject(array)
   end
 end
 
+Time.zone = "America/Sao_Paulo"
 json = JSON.parse(File.read("db/jupiterweb.json"))["TODOS"]
 json.each do |s|
   create_subject(s)

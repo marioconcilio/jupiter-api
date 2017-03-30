@@ -7,10 +7,10 @@ class Api::V1::ScheduleSerializer < ActiveModel::Serializer
   belongs_to :classroom
 
   def time_begin
-    object.time_begin.strftime("%H:%M")
+    object.time_begin.strftime("%H:%M:%SZ")
   end
 
   def time_end
-    object.time_end.strftime("%H:%M")
+    object.time_end.strftime("%H:%M:%SZ")
   end
 end
