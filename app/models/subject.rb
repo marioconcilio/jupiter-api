@@ -1,6 +1,6 @@
 class Subject < ApplicationRecord
-  validates_presence_of :code, 
+  validates_presence_of :code,
                         :name
 
-  has_many :classrooms
+  has_many :classrooms, dependent: :destroy
 end

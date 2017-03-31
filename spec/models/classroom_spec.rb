@@ -6,10 +6,11 @@ describe Classroom, type: :model do
   it { should belong_to(:subject) }
 
   # Classroom model has 1:m relationship with Schedule
-  it { should have_many(:schedules)}
+  it { should have_many(:schedules).dependent(:destroy) }
 
   it { should validate_presence_of(:code) }
   it { should validate_presence_of(:date_begin) }
   it { should validate_presence_of(:date_end) }
   it { should validate_presence_of(:kind) }
+  it { should validate_presence_of(:subject) }
 end
