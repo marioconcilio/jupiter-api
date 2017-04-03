@@ -13,6 +13,20 @@ describe 'Subjects API', type: :request do
       expect(json['subjects'].size).to eq(10)
     end
 
+    it 'verifies that each subject have at least one classroom' do
+      json['subjects'].each do |subject|
+        expect(subject['classrooms']).not_to be_empty
+      end
+    end
+
+    it 'verifies that each classroom have at least one schedule' do
+      json['subjects'].each do |subject|
+        subject['classrooms'].each do |classroom|
+          expect(classroom['schedules']).not_to be_empty
+        end
+      end
+    end
+
     it 'returns status code 200' do
       expect(response).to have_http_status(200)
     end
@@ -48,7 +62,7 @@ describe 'Subjects API', type: :request do
         expect(json['subjects']['code']).to eq(subject_code)
       end
 
-      it 'returns header status code 200' do
+      it 'returns status code 200' do
         expect(response).to have_http_status(200)
       end
 
