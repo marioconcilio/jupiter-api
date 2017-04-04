@@ -1,6 +1,5 @@
 FactoryGirl.define do
   factory :classroom do
-    subject
     code { Faker::Lorem.characters(7).upcase }
     date_begin { Faker::Date.backward }
     date_end { Faker::Date.forward }

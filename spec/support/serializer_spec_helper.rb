@@ -1,8 +1,11 @@
 module SerializerSpecHelper
-  def serialize(obj, opts={})
-    serializer_class = opts.delete(:serializer_class) || "#{obj.class.name}Serializer".constantize
+
+  def serialize(obj:, mod:)
+    serializer_class = "#{mod}::#{obj.class.name}Serializer".constantize
     serializer = serializer_class.send(:new, obj)
-    adapter = ActiveModelSerializers::Adapter.create(serializer, opts)
-    adapter.to_json
+    adapter = ActiveModelSerializers::Adapter.create(serializer)
+
+    return JSON.parse(adapter.to_json)
   end
+
 end

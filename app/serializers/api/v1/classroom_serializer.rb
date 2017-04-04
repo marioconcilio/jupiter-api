@@ -1,8 +1,8 @@
 class Api::V1::ClassroomSerializer < ActiveModel::Serializer
-  attributes :code, 
-             :date_begin, 
-             :date_end, 
-             :kind, 
+  attributes :code,
+             :date_begin,
+             :date_end,
+             :kind,
              :schedules
 
   belongs_to :subject
