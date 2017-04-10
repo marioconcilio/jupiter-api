@@ -27,7 +27,7 @@ end
 puts "#{codigo_unidades.count} unidades encontradas"
 
 materias = {}
-codigo_unidades[0..1].each do |codigo|
+codigo_unidades.each do |codigo|
   puts "Obtendo matérias da unidade #{codigo}"
 
   # pagina contendo todas as materias da unidade
@@ -52,11 +52,13 @@ end
 materias.each do |unidade, materias_unidade|
   puts "Processando materias da unidade #{unidade}"
 
-  materias_unidade[0..2].each do |codigo, nome|
+  materias_unidade.each do |codigo, nome|
     next if codigo.length != 7
+
+    # pagina contendo oferecimento da materia
     page = Nokogiri::HTML(open("#{URL_TURMAS}#{codigo}"))
 
-    # verifica se existe oferecimento para a materia
+    # verifica se existe oferecimento
     if page.css('div#web_mensagem').text.include? "Não existe oferecimento"
       puts " - Não existe oferecimento para #{codigo}. Pulando..."
     else
