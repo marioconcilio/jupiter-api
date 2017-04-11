@@ -80,26 +80,18 @@ def parse_campus(table)
     tds = rows[i].search('td').map { |td| td.text.strip }
     kind = tds[0]
 
-
-    # vacancies = data[0]
-    # inscribed = data[1]
-    # pending = data[2]
-    # enrolled = data[3]
-    # name = ''
-
     last_index = i
     (i+1..rows.length-1).each do |j|
       tds = rows[j].search('td').map { |td| td.text.strip }
-      data = tds.from(2).map { |td| td.to_i }
+      break if tds[0].include? 'Obrigatória' && 'Optativa'
 
-      # se primeira coluna nao for espaço em branco, pula
-      break unless tds[0].length > 1
+      data = tds.from(2).map { |td| td.to_i }
 
       vacancies = data[0]
       inscribed = data[1]
       pending = data[2]
       enrolled = data[3]
-      name = ''
+      name = tds[1]
 
       last_index = j
 
@@ -108,13 +100,13 @@ def parse_campus(table)
     " - vacancies: #{vacancies}",
     " - inscribed: #{inscribed}",
     " - pending: #{pending}",
-    " - enrolled: #{enrolled}"
+    " - enrolled: #{enrolled}",
+    " ------------------------------ "
     end
 
     # retoma da ultima linha visitada em busca de professores
     # evitando duas visitas a mesma linha
     i = last_index + 1
-
   end
 end
 
