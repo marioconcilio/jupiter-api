@@ -1,6 +1,6 @@
 # ruby encoding: utf-8
 
-def parse_classroom(table)
+def parse_classroom(table, subject)
   rows = table.search('tr')
   raise 'wrong table!' unless rows.first.text.include? 'Código'
 
@@ -12,14 +12,16 @@ def parse_classroom(table)
   # algumas materias nao contem observacoes
   notes = rows[4].search('td')[1].text.strip unless rows[4].nil?
 
-  puts " - code: #{code}",
-  " - begin: #{date_begin}",
-  " - end: #{date_end}",
-  " - kind: #{kind}",
-  " - notes: #{notes}"
+  classroom = Classroom.new(
+    code: code,
+    date_begin: date_begin,
+    date_end: date_end,
+    kind: kind,
+    notes: notes,
+    subject: subject)
 end
 
-def parse_schedule(table)
+def parse_schedule(table, classroom)
   rows = table.search('tr')
   raise 'wrong table!' unless rows.first.text.include? 'Horário'
 
@@ -69,7 +71,7 @@ def parse_schedule(table)
   end
 end
 
-def parse_campus(table)
+def parse_school(table)
   rows = table.search('tr')
   raise 'wrong table!' unless rows.first.text.include? 'Vagas'
 
@@ -82,10 +84,10 @@ def parse_campus(table)
     data = tds.from(1).map { |td| td.to_i }
     kind = tds[0]
 
-    # flag para checar se existe campus nas linhas abaixo
+    # flag para checar se existe escolas nas linhas abaixo
     has_more_lines = false
 
-    # procura por campus nas linhas abaixo
+    # procura por escolas nas linhas abaixo
     # ex: Obrigatoria             66 60  1 59
     #         EACH - SI - Diurno  66 42  1 41
     last_index = i
@@ -94,8 +96,8 @@ def parse_campus(table)
       tds = rows[j].search('td').map { |td| td.text.strip }
 
       # se a linha contem Obrigatoria ou Optativa
-      # eh um novo campus
-      # sai para o laço externo e comeca outro campus
+      # eh uma nova escola
+      # sai para o laço externo e comeca outra escola
       break if tds[0].include? 'Obrigatória' && 'Optativa'
 
       data = tds.from(2).map { |td| td.to_i }
@@ -118,8 +120,8 @@ def parse_campus(table)
     " ------------------------------ "
     end
 
-    # se nao teve nenhuma linha abaixo com descricao do campus
-    # adiciona novo campus sem nome, mas com os dados
+    # se nao teve nenhuma linha abaixo com descricao da escola
+    # adiciona nova escola sem nome, mas com os dados
     unless has_more_lines
       name = ''
       vacancies = data[0]
@@ -136,7 +138,7 @@ def parse_campus(table)
     " ------------------------------ "
     end
 
-    # retoma da ultima linha visitada em busca de campus
+    # retoma da ultima linha visitada em busca de escola
     # evitando duas visitas a mesma linha
     i = last_index + 1
   end
@@ -146,5 +148,15 @@ def parse_subject(page, code, name)
   puts "parsing subject #{code} #{name}"
   tables = page.at('td[width="568"]').search('table')
   raise 'wrong page!' if tables.count % 3 != 0
+
+  subject = Subject.new(
+    code: code,
+    name: name)
+
+  0.step(tables.count-1, 3) do |i|
+    classroom = parse_classroom(tables[i], subject)
+    parse_schedule(tables[i+1], classroom)
+    parse_school(tables[i+2], classroom)
+  end
 
 end
