@@ -27,6 +27,10 @@ module Api::V1
         expect(json['kind']).to eql(classroom.kind)
       end
 
+      it 'should have notes that matches' do
+        expect(json['notes']).to eql(classroom.notes)
+      end
+
       it 'should show its schedules' do
         expect(json['schedules']).to be_truthy
       end

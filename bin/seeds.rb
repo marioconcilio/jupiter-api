@@ -80,13 +80,7 @@ def parse_campus(table)
   while i < rows.count
     tds = rows[i].search('td').map { |td| td.text.strip }
     data = tds.from(1).map { |td| td.to_i }
-
-    # name = ''
     kind = tds[0]
-    # vacancies = data[0]
-    # inscribed = data[1]
-    # pending = data[2]
-    # enrolled = data[3]
 
     # flag para checar se existe campus nas linhas abaixo
     has_more_lines = false

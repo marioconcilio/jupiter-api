@@ -12,5 +12,6 @@ describe Classroom, type: :model do
   it { should validate_presence_of(:date_begin) }
   it { should validate_presence_of(:date_end) }
   it { should validate_presence_of(:kind) }
+  it { should validate_presence_of(:notes) }
   it { should validate_presence_of(:subject) }
 end

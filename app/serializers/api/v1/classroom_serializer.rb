@@ -3,6 +3,7 @@ class Api::V1::ClassroomSerializer < ActiveModel::Serializer
              :date_begin,
              :date_end,
              :kind,
+             :notes,
              :schedules
 
   belongs_to :subject

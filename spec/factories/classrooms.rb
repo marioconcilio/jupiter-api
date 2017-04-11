@@ -4,6 +4,7 @@ FactoryGirl.define do
     date_begin { Faker::Date.backward }
     date_end { Faker::Date.forward }
     kind { Faker::Lorem.word }
+    notes { Faker::Lorem.sentence }
 
     transient do
       schedules_count { Faker::Number.between(1, 10) }

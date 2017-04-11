@@ -3,6 +3,7 @@ class Classroom < ApplicationRecord
                         :date_begin,
                         :date_end,
                         :kind,
+                        :notes,
                         :subject
 
   has_many :schedules, dependent: :destroy
