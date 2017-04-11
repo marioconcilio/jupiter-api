@@ -35,6 +35,10 @@ module Api::V1
         expect(json['schedules']).to be_truthy
       end
 
+      it 'should show its schools' do
+        expect(json['schools']).to be_truthy
+      end
+
       it 'should not show created_at' do
         expect(json['created_at']).to be_falsy
       end

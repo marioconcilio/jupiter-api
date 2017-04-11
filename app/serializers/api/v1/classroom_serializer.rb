@@ -6,6 +6,8 @@ class Api::V1::ClassroomSerializer < ActiveModel::Serializer
              :notes,
              :schedules
 
-  belongs_to :subject
   has_many :schedules
+  has_many :schools
+
+  belongs_to :subject
 end

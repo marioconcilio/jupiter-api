@@ -8,10 +8,15 @@ FactoryGirl.define do
 
     transient do
       schedules_count { Faker::Number.between(1, 10) }
+      schools_count { Faker::Number.between(1, 10) }
     end
 
     after :create do |classroom, eval|
       create_list(:schedule, eval.schedules_count, classroom: classroom)
+    end
+
+    after :create do |classroom, eval|
+      create_list(:school, eval.schools_count, classroom: classroom)
     end
   end
 end

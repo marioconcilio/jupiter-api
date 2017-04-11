@@ -8,6 +8,9 @@ describe Classroom, type: :model do
   # Classroom model has 1:m relationship with Schedule
   it { should have_many(:schedules).dependent(:destroy) }
 
+  # Classroom model has 1:m relationship with School
+  it { should have_many(:schools).dependent(:destroy) }
+
   it { should validate_presence_of(:code) }
   it { should validate_presence_of(:date_begin) }
   it { should validate_presence_of(:date_end) }
