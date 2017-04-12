@@ -1,6 +1,6 @@
 # ruby encoding: utf-8
 
-def parse_classroom(table, subject)
+def parse_classroom(table:, subject:)
   rows = table.search('tr')
   raise 'wrong table!' unless rows.first.text.include? 'Código'
 
@@ -12,21 +12,23 @@ def parse_classroom(table, subject)
   # algumas materias nao contem observacoes
   notes = rows[4].search('td')[1].text.strip unless rows[4].nil?
 
-  classroom = Classroom.new(
+  return Classroom.new(
     code: code,
     date_begin: date_begin,
     date_end: date_end,
     kind: kind,
     notes: notes,
     subject: subject)
-end
+end # parse_classroom
 
-def parse_schedule(table, classroom)
+def parse_schedule(table:, classroom:)
   rows = table.search('tr')
   raise 'wrong table!' unless rows.first.text.include? 'Horário'
 
   # descarta cabecalho da tabela
   rows.shift
+
+  schedules = []
 
   i = 0
   while i < rows.count
@@ -55,7 +57,7 @@ def parse_schedule(table, classroom)
 
       # guarda o indice j para usar no laço externo
       last_index = j
-    end
+    end # (i+1..rows.length-1).each
 
     # retoma da ultima linha visitada em busca de professores
     # evitando duas visitas a mesma linha
@@ -64,19 +66,25 @@ def parse_schedule(table, classroom)
     # remove duplicatas
     teachers.uniq!
 
-    puts " - week: #{week_day}",
-    " - begin: #{time_begin}",
-    " - end: #{time_end}",
-    " - teachers: #{teachers}"
-  end
-end
+    schedules.push(Schedule.new(
+      week_day: week_day,
+      time_begin: time_begin,
+      time_end: time_end,
+      teachers: teachers,
+      classroom: classroom))
+  end # while i < rows.count
 
-def parse_school(table)
+  return schedules
+end #parse_schedule
+
+def parse_school(table:, classroom:)
   rows = table.search('tr')
   raise 'wrong table!' unless rows.first.text.include? 'Vagas'
 
   # descarta cabecalho da tabela
   rows.shift
+
+  schools = []
 
   i = 0
   while i < rows.count
@@ -102,61 +110,61 @@ def parse_school(table)
 
       data = tds.from(2).map { |td| td.to_i }
 
-      name = tds[1]
-      vacancies = data[0]
-      inscribed = data[1]
-      pending = data[2]
-      enrolled = data[3]
-
       # guarda o indice j para usar no laço externo
       last_index = j
 
-      puts " - name: #{name}",
-    " - kind: #{kind}",
-    " - vacancies: #{vacancies}",
-    " - inscribed: #{inscribed}",
-    " - pending: #{pending}",
-    " - enrolled: #{enrolled}",
-    " ------------------------------ "
-    end
+      schools.push(School.new(
+        name: tds[1],
+        kind: kind,
+        vacancies: data[0],
+        inscribed: data[1],
+        pending: data[2],
+        enrolled: data[3],
+        classroom: classroom))
+    end # while i < rows.count
 
     # se nao teve nenhuma linha abaixo com descricao da escola
     # adiciona nova escola sem nome, mas com os dados
     unless has_more_lines
-      name = ''
-      vacancies = data[0]
-      inscribed = data[1]
-      pending = data[2]
-      enrolled = data[3]
-
-      puts " - name: #{name}",
-    " - kind: #{kind}",
-    " - vacancies: #{vacancies}",
-    " - inscribed: #{inscribed}",
-    " - pending: #{pending}",
-    " - enrolled: #{enrolled}",
-    " ------------------------------ "
-    end
+      schools.push(School.new(
+        name: '',
+        kind: kind,
+        vacancies: data[0],
+        inscribed: data[1],
+        pending: data[2],
+        enrolled: data[3]))
+    end # unless has_more_lines
 
     # retoma da ultima linha visitada em busca de escola
     # evitando duas visitas a mesma linha
     i = last_index + 1
-  end
-end
+  end # while i < rows.count
 
-def parse_subject(page, code, name)
-  puts "parsing subject #{code} #{name}"
+  return schools
+end # parse_school
+
+def parse_subject(code: , name:)
+  raise 'wrong code!' if code.nil? || code.empty?
+  raise 'wrong name!' if name.nil? || name.empty?
+
+  return Subject.new(
+    code: code,
+    name: name)
+end # parse_subject
+
+def parse_page(page:, code:, name:)
+  puts "Parsing page #{code}"
   tables = page.at('td[width="568"]').search('table')
   raise 'wrong page!' if tables.count % 3 != 0
 
-  subject = Subject.new(
-    code: code,
-    name: name)
+  subject = parse_subject(code: code, name: name)
 
-  0.step(tables.count-1, 3) do |i|
-    classroom = parse_classroom(tables[i], subject)
-    parse_schedule(tables[i+1], classroom)
-    parse_school(tables[i+2], classroom)
-  end
+  i = 0
+  while i < tables.count
+    classroom = parse_classroom(table: tables[i], subject: subject)
+    schedule = parse_schedule(table: tables[i+1], classroom: classroom)
+    school = parse_school(table: tables[i+2], classroom: classroom)
 
-end
+    i += 3
+  end # i < tables.count
+end # parse_page
