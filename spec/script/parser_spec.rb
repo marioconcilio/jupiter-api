@@ -3,58 +3,372 @@ require_relative '../../script/parser.rb'
 
 describe 'Parser' do
 
-  context 'when parsing HEP0145' do
-    let(:page) { Nokogiri::HTML(File.read('spec/fixtures/HEP0145.html')) }
+  context 'when parsing page' do
+    let(:page) { Nokogiri::HTML(File.read('spec/fixtures/ABC0123.html')) }
+
+    it 'should have one subject' do
+      p = parse_page(page: page, code: 'ABC0123', name: 'Testecultura')
+      expect(p[:subject]).to_not be_nil
+    end
+
+    it 'should have two classrooms' do
+      p = parse_page(page: page, code: 'ABC0123', name: 'Testecultura')
+      expect(p[:classrooms].count).to eql(2)
+    end
+
     let(:tables) { tables = page.at('td[width="568"]').search('table') }
 
-    context 'its classroom' do
-      let(:classroom) { parse_classroom(table: tables[0], subject: nil) }
+    context 'its first classroom' do
+      let(:classroom) { parse_classroom(table: tables[0]) }
 
-      it 'should have code that matches "201701"' do
+      it 'should have code that matches' do
         expect(classroom.code).to eql('2017101')
       end
 
-      it 'should have date_begin that matches "13/03/2017"' do
-        expect(classroom.date_begin).to eql(Date.new(2017, 3, 13))
+      it 'should have date_begin that matches' do
+        expect(classroom.date_begin).to eql(Date.new(2017, 3, 6))
       end
 
-      it 'should have date_end that matches "03/07/2017"' do
-        expect(classroom.date_end).to eql(Date.new(2017, 7, 3))
+      it 'should have date_end that matches' do
+        expect(classroom.date_end).to eql(Date.new(2017, 7, 8))
       end
 
-      it 'should have kind that matches "Teórica"' do
+      it 'should have kind that matches' do
+        expect(classroom.kind).to eql('Teórica e Prática')
+      end
+
+      it 'should not have notes' do
+        expect(classroom.notes).to be_nil
+      end
+
+      context 'schedule' do
+        let(:schedules) { parse_schedules(table: tables[1]) }
+
+        it 'should have two entries' do
+          expect(schedules.count).to eql(2)
+        end
+
+        context 'fist entry' do
+          let(:schedule) { schedules[0] }
+
+          it 'should have week_day that matches' do
+            expect(schedule.week_day).to eql('ter')
+          end
+
+          it 'should have time_begin that matches' do
+            expect(schedule.time_begin.strftime("%H:%M")).to eql('14:00')
+          end
+
+          it 'should have time_end that matches' do
+            expect(schedule.time_end.strftime("%H:%M")).to eql('17:50')
+          end
+
+          it 'should have teachers that matches' do
+            expect(schedule.teachers).to eql(['(R)Obi-Wan Kenobi'])
+          end
+        end # first entry
+
+        context 'second entry' do
+          let(:schedule) { schedules[1] }
+
+          it 'should have week_day that matches' do
+            expect(schedule.week_day).to eql('qui')
+          end
+
+          it 'should have time_begin that matches' do
+            expect(schedule.time_begin.strftime("%H:%M")).to eql('16:00')
+          end
+
+          it 'should have time_end that matches' do
+            expect(schedule.time_end.strftime("%H:%M")).to eql('18:50')
+          end
+
+          it 'should have teachers that matches' do
+            expect(schedule.teachers).to eql(['Soon Qui-Gon'])
+          end
+        end # second entry
+
+      end # schedule
+
+      context 'schools' do
+        let(:schools) { parse_schools(table: tables[2]) }
+
+        it 'should have seven entries' do
+          expect(schools.count).to eql(7)
+        end
+
+        context 'first entry' do
+          let(:school) { schools[0] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Obrigatória')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(0)
+            expect(school.inscribed).to eql(0)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(0)
+          end
+        end # first entry
+
+        context 'second entry' do
+          let(:school) { schools[1] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Optativa Eletiva')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(45)
+            expect(school.inscribed).to eql(11)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(11)
+          end
+        end # second entry
+
+        context 'third entry' do
+          let(:school) { schools[2] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Optativa Livre')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('Qualquer Unidade da USP')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(0)
+            expect(school.inscribed).to eql(0)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(0)
+          end
+        end # third entry
+
+        context 'fourth entry' do
+          let(:school) { schools[3] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Optativa Livre')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('ESALQ - Ciências Econômicas')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(5)
+            expect(school.inscribed).to eql(0)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(0)
+          end
+        end # fourth entry
+
+        context 'fifth entry' do
+          let(:school) { schools[4] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Optativa Livre')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('ESALQ - Ciências dos Alimentos')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(5)
+            expect(school.inscribed).to eql(0)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(0)
+          end
+        end # fifth entry
+
+        context 'sixth entry' do
+          let(:school) { schools[5] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Alunos Especiais')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(1)
+            expect(school.inscribed).to eql(0)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(0)
+          end
+        end # sixth entry
+
+        context 'seventh entry' do
+          let(:school) { schools[6] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Extracurricular')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(1)
+            expect(school.inscribed).to eql(1)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(1)
+          end
+        end # seventh entry
+
+      end # schools
+    end # its first classroom
+
+    context 'its second classroom' do
+      let(:classroom) { parse_classroom(table: tables[3]) }
+
+      it 'should have code that matches' do
+        expect(classroom.code).to eql('2017102')
+      end
+
+      it 'should have date_begin that matches' do
+        expect(classroom.date_begin).to eql(Date.new(2017, 2, 22))
+      end
+
+      it 'should have date_end that matches' do
+        expect(classroom.date_end).to eql(Date.new(2017, 5, 24))
+      end
+
+      it 'should have kind that matches' do
         expect(classroom.kind).to eql('Teórica')
       end
 
-      it 'should have empty notes' do
-        expect(classroom.notes).to eql('')
+      it 'should have notes that matches' do
+        expect(classroom.notes).to eql('Sala 108')
       end
 
-    end # its classroom
+      context 'schedule' do
+        let(:schedules) { parse_schedules(table: tables[4]) }
 
-    context 'its schedule' do
-      let(:schedule) { parse_schedule(table: tables[1], classroom: nil)[0] }
+        it 'should have one single entry' do
+          expect(schedules.count).to eql(1)
+        end
 
-      it 'should have week_day that matches "seg"' do
-        expect(schedule.week_day).to eql('seg')
-      end
+        context 'single entry' do
+          let(:schedule) { schedules[0] }
 
-      it 'should have time_begin that matches "14:00"' do
-        expect(schedule.time_begin.strftime("%H:%M")).to eql('14:00')
-      end
+          it 'should have week_day that matches' do
+            expect(schedule.week_day).to eql('qua')
+          end
 
-      it 'should have time_end that matches "16:00"' do
-        expect(schedule.time_end.strftime("%H:%M")).to eql('16:00')
-      end
+          it 'should have time_begin that matches' do
+            expect(schedule.time_begin.strftime("%H:%M")).to eql('14:00')
+          end
 
-      it 'should have teachers that matches' do
-        expect(schedule.teachers).to eql(
-          ['(R)Alexandre Dias Porto Chiavegatto Filho',
-          '(R)Francisco Chiaravalloti Neto'])
-      end
+          it 'should have time_end that matches' do
+            expect(schedule.time_end.strftime("%H:%M")).to eql('18:00')
+          end
 
-    end # its schedule
+          it 'should have teachers that matches' do
+            expect(schedule.teachers).to eql(['(R)Anakin Skywalker', '(R)Mace Windu'])
+          end
+        end # single entry
+      end # schedule
 
-  end # when parsing HEP0145
+      context 'schools' do
+        let(:schools) { parse_schools(table: tables[5]) }
 
+        it 'should have four entries' do
+          expect(schools.count).to eql(4)
+        end
+
+        context 'first entry' do
+          let(:school) { schools[0] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Obrigatória')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(0)
+            expect(school.inscribed).to eql(0)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(0)
+          end
+        end # first entry
+
+        context 'second entry' do
+          let(:school) { schools[1] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Optativa Eletiva')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('FSP - Saúde Pública')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(25)
+            expect(school.inscribed).to eql(0)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(0)
+          end
+        end # second entry
+
+        context 'third entry' do
+          let(:school) { schools[2] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Optativa Livre')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('Qualquer Unidade da USP')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(0)
+            expect(school.inscribed).to eql(0)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(0)
+          end
+        end # third entry
+
+        context 'fourth entry' do
+          let(:school) { schools[3] }
+
+          it 'should have kind that matches' do
+            expect(school.kind).to eql('Optativa Livre')
+          end
+
+          it 'should have name that matches' do
+            expect(school.name).to eql('FSP - Nutrição (Diurno e Noturno)')
+          end
+
+          it 'should have data that matches' do
+            expect(school.vacancies).to eql(5)
+            expect(school.inscribed).to eql(1)
+            expect(school.pending).to eql(0)
+            expect(school.enrolled).to eql(1)
+          end
+        end # fourth entry
+
+      end # schools
+    end # its second classroom
+
+  end # when parsing page
 end # Parser

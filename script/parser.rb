@@ -1,6 +1,6 @@
 # ruby encoding: utf-8
 
-def parse_classroom(table:, subject:)
+def parse_classroom(table:, subject: nil)
   rows = table.search('tr')
   raise 'wrong table!' unless rows.first.text.include? 'Código'
 
@@ -21,7 +21,7 @@ def parse_classroom(table:, subject:)
     subject: subject)
 end # parse_classroom
 
-def parse_schedule(table:, classroom:)
+def parse_schedules(table:, classroom: nil)
   rows = table.search('tr')
   raise 'wrong table!' unless rows.first.text.include? 'Horário'
 
@@ -77,7 +77,7 @@ def parse_schedule(table:, classroom:)
   return schedules
 end #parse_schedule
 
-def parse_school(table:, classroom:)
+def parse_schools(table:, classroom: nil)
   rows = table.search('tr')
   raise 'wrong table!' unless rows.first.text.include? 'Vagas'
 
@@ -100,14 +100,17 @@ def parse_school(table:, classroom:)
     #         EACH - SI - Diurno  66 42  1 41
     last_index = i
     (i+1..rows.length-1).each do |j|
-      has_more_lines = true
-      tds = rows[j].search('td').map { |td| td.text.strip }
+      #tds = rows[j].search('td').map { |td| td.text.strip }
+      tds = rows[j].search('td')
 
       # se a linha contem Obrigatoria ou Optativa
       # eh uma nova escola
       # sai para o laço externo e comeca outra escola
-      break if tds[0].include? 'Obrigatória' && 'Optativa'
+      # break if tds[0].include? 'Obrigatória' && 'Optativa'
+      break if tds.at('span').attributes['class'].value == 'txt_arial_8pt_black'
+      has_more_lines = true
 
+      tds = tds.map { |td| td.text.strip }
       data = tds.from(2).map { |td| td.to_i }
 
       # guarda o indice j para usar no laço externo
@@ -153,18 +156,29 @@ def parse_subject(code: , name:)
 end # parse_subject
 
 def parse_page(page:, code:, name:)
-  puts "Parsing page #{code}"
   tables = page.at('td[width="568"]').search('table')
   raise 'wrong page!' if tables.count % 3 != 0
 
   subject = parse_subject(code: code, name: name)
 
+  classrooms = []
+  schedules = []
+  schools = []
+
   i = 0
   while i < tables.count
     classroom = parse_classroom(table: tables[i], subject: subject)
-    schedule = parse_schedule(table: tables[i+1], classroom: classroom)
-    school = parse_school(table: tables[i+2], classroom: classroom)
+    schedules.push(parse_schedules(table: tables[i+1], classroom: classroom))
+    schools.push(parse_schools(table: tables[i+2], classroom: classroom))
+    classrooms.push(classroom)
 
     i += 3
   end # i < tables.count
+
+  page = {subject: subject,
+          classrooms: classrooms,
+          schedules: schedules,
+          schools: schools}
+
+  return page
 end # parse_page
