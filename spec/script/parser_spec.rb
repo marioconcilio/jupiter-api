@@ -4,22 +4,26 @@ require_relative '../../script/parser.rb'
 describe 'Parser' do
 
   context 'when parsing page' do
-    let(:page) { Nokogiri::HTML(File.read('spec/fixtures/ABC0123.html')) }
-
-    it 'should have one subject' do
-      p = parse_page(page: page, code: 'ABC0123', name: 'Testecultura')
-      expect(p[:subject]).to_not be_nil
+    let(:page) do
+      parse_page page: Nokogiri::HTML(File.read('spec/fixtures/ABC0123.html')),
+                 code: 'ABC0123',
+                 name: 'Testecultura'
     end
 
-    it 'should have two classrooms' do
-      p = parse_page(page: page, code: 'ABC0123', name: 'Testecultura')
-      expect(p[:classrooms].count).to eql(2)
-    end
+    context 'its subject' do
+      let(:subject) { page[:subject] }
 
-    let(:tables) { tables = page.at('td[width="568"]').search('table') }
+      it 'should have code that matches' do
+        expect(subject.code).to eql('ABC0123')
+      end
+
+      it 'should have name that matches' do
+        expect(subject.name).to eql('Testecultura')
+      end
+    end # its subject
 
     context 'its first classroom' do
-      let(:classroom) { parse_classroom(table: tables[0]) }
+      let(:classroom) { page[:classrooms][0] }
 
       it 'should have code that matches' do
         expect(classroom.code).to eql('2017101')
@@ -42,13 +46,13 @@ describe 'Parser' do
       end
 
       context 'schedule' do
-        let(:schedules) { parse_schedules(table: tables[1]) }
+        let(:schedules) { page[:schedules][0] }
 
         it 'should have two entries' do
           expect(schedules.count).to eql(2)
         end
 
-        context 'fist entry' do
+        context 'first entry' do
           let(:schedule) { schedules[0] }
 
           it 'should have week_day that matches' do
@@ -91,7 +95,7 @@ describe 'Parser' do
       end # schedule
 
       context 'schools' do
-        let(:schools) { parse_schools(table: tables[2]) }
+        let(:schools) { page[:schools][0] }
 
         it 'should have seven entries' do
           expect(schools.count).to eql(7)
@@ -234,7 +238,7 @@ describe 'Parser' do
     end # its first classroom
 
     context 'its second classroom' do
-      let(:classroom) { parse_classroom(table: tables[3]) }
+      let(:classroom) { page[:classrooms][1] }
 
       it 'should have code that matches' do
         expect(classroom.code).to eql('2017102')
@@ -257,7 +261,7 @@ describe 'Parser' do
       end
 
       context 'schedule' do
-        let(:schedules) { parse_schedules(table: tables[4]) }
+        let(:schedules) { page[:schedules][1] }
 
         it 'should have one single entry' do
           expect(schedules.count).to eql(1)
@@ -285,7 +289,7 @@ describe 'Parser' do
       end # schedule
 
       context 'schools' do
-        let(:schools) { parse_schools(table: tables[5]) }
+        let(:schools) { page[:schools][1] }
 
         it 'should have four entries' do
           expect(schools.count).to eql(4)

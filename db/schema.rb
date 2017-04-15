@@ -15,19 +15,6 @@ ActiveRecord::Schema.define(version: 20170411201318) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
-  create_table "campus", force: :cascade do |t|
-    t.string   "name"
-    t.string   "kind"
-    t.integer  "vacancies"
-    t.integer  "inscribed"
-    t.integer  "pending"
-    t.integer  "enrolled"
-    t.integer  "classroom_id"
-    t.datetime "created_at",   null: false
-    t.datetime "updated_at",   null: false
-    t.index ["classroom_id"], name: "index_campus_on_classroom_id", using: :btree
-  end
-
   create_table "classrooms", force: :cascade do |t|
     t.string   "code"
     t.date     "date_begin"
@@ -71,7 +58,6 @@ ActiveRecord::Schema.define(version: 20170411201318) do
     t.datetime "updated_at", null: false
   end
 
-  add_foreign_key "campus", "classrooms"
   add_foreign_key "classrooms", "subjects"
   add_foreign_key "schedules", "classrooms"
   add_foreign_key "schools", "classrooms"
