@@ -17,7 +17,7 @@ module Response
   def subjects_response(object, status=200, message='OK')
     json_response object: object,
                   root: 'subjects',
-                  includes: 'classrooms.schedules',
+                  includes: ['classrooms.schedules', 'classrooms.schools'],
                   status: status,
                   message: message
   end

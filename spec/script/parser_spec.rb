@@ -1,8 +1,11 @@
 require 'rails_helper'
 require_relative '../../script/parser.rb'
 
-describe 'Parser' do
+RSpec.configure do |c|
+  c.include Parser
+end
 
+describe Parser do
   context 'when parsing page' do
     let(:page) do
       parse_page page: Nokogiri::HTML(File.read('spec/fixtures/ABC0123.html')),
@@ -11,7 +14,7 @@ describe 'Parser' do
     end
 
     context 'its subject' do
-      let(:subject) { page[:subject] }
+      let(:subject) { page.subject }
 
       it 'should have code that matches' do
         expect(subject.code).to eql('ABC0123')
@@ -23,7 +26,7 @@ describe 'Parser' do
     end # its subject
 
     context 'its first classroom' do
-      let(:classroom) { page[:classrooms][0] }
+      let(:classroom) { page.classrooms[0] }
 
       it 'should have code that matches' do
         expect(classroom.code).to eql('2017101')
@@ -46,7 +49,7 @@ describe 'Parser' do
       end
 
       context 'schedule' do
-        let(:schedules) { page[:schedules][0] }
+        let(:schedules) { page.schedules[0] }
 
         it 'should have two entries' do
           expect(schedules.count).to eql(2)
@@ -95,7 +98,7 @@ describe 'Parser' do
       end # schedule
 
       context 'schools' do
-        let(:schools) { page[:schools][0] }
+        let(:schools) { page.schools[0] }
 
         it 'should have seven entries' do
           expect(schools.count).to eql(7)
@@ -238,7 +241,7 @@ describe 'Parser' do
     end # its first classroom
 
     context 'its second classroom' do
-      let(:classroom) { page[:classrooms][1] }
+      let(:classroom) { page.classrooms[1] }
 
       it 'should have code that matches' do
         expect(classroom.code).to eql('2017102')
@@ -261,7 +264,7 @@ describe 'Parser' do
       end
 
       context 'schedule' do
-        let(:schedules) { page[:schedules][1] }
+        let(:schedules) { page.schedules[1] }
 
         it 'should have one single entry' do
           expect(schedules.count).to eql(1)
@@ -289,7 +292,7 @@ describe 'Parser' do
       end # schedule
 
       context 'schools' do
-        let(:schools) { page[:schools][1] }
+        let(:schools) { page.schools[1] }
 
         it 'should have four entries' do
           expect(schools.count).to eql(4)

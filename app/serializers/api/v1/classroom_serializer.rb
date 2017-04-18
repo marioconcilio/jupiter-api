@@ -4,7 +4,8 @@ class Api::V1::ClassroomSerializer < ActiveModel::Serializer
              :date_end,
              :kind,
              :notes,
-             :schedules
+             :schedules,
+             :schools
 
   has_many :schedules
   has_many :schools

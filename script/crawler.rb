@@ -4,64 +4,74 @@
 require 'nokogiri'
 require 'open-uri'
 
-URL_UNIDADES = 'https://uspdigital.usp.br/jupiterweb/jupColegiadoLista?tipo=D'
-URL_MATERIAS = 'https://uspdigital.usp.br/jupiterweb/jupDisciplinaLista?letra=A-Z&tipo=D&codcg='
-URL_TURMAS = 'https://uspdigital.usp.br/jupiterweb/obterTurma?print=true&sgldis='
+module Crawler
+  CrawlerPage = Struct.new(:page, :code, :name)
 
-puts 'Obtendo a lista de todas as unidades de ensino'
+  URL_UNIDADES = 'https://uspdigital.usp.br/jupiterweb/jupColegiadoLista?tipo=D'
+  URL_MATERIAS = 'https://uspdigital.usp.br/jupiterweb/jupDisciplinaLista?letra=A-Z&tipo=D&codcg='
+  URL_TURMAS = 'https://uspdigital.usp.br/jupiterweb/obterTurma?print=true&sgldis='
 
-# pagina contendo todas as unidades da USP
-page = Nokogiri::HTML(open(URL_UNIDADES))
+  def get_pages
+    puts 'Obtendo a lista de todas as unidades de ensino'
 
-# procura por todos os links contendo 'jupColegiadoMenu'
-link_unidades = page.css('a[@href*="jupColegiadoMenu"]')
+    # pagina contendo todas as unidades da USP
+    page = Nokogiri::HTML(open(URL_UNIDADES))
 
-# extrai o codigo da materia embutido no link
-# ex: jupColegiadoMenu.jsp?codcg=86&tipo=D&nomclg=Escola+de+Artes,+Ciências+e+Humanidades
-# código = 86
-codigo_unidades = link_unidades.map do |link|
-  link['href'].match(/codcg=(\d+)/)[1]
-end
+    # procura por todos os links contendo 'jupColegiadoMenu'
+    link_unidades = page.css('a[@href*="jupColegiadoMenu"]')
 
-puts "#{codigo_unidades.count} unidades encontradas"
-
-materias = {}
-codigo_unidades.each do |codigo|
-  puts "Obtendo matérias da unidade #{codigo}"
-
-  # pagina contendo todas as materias da unidade
-  page = Nokogiri::HTML(open("#{URL_MATERIAS}#{codigo}"))
-
-  # procura por todos os links contento 'obterDisciplina'
-  link_materias = page.css('a[@href*="obterDisciplina"]')
-
-  # extrai o codigo da materia contido no link e o nome
-  # ex: obterDisciplina?sgldis=ACH2016&verdis=2
-  # codigo = ACH2016
-  materias_unidade = link_materias.map do |link|
-    [link['href'].match(/sgldis=([A-Z0-9]+)/)[1], link.text]
-  end
-
-  puts "#{materias_unidade.count} materias encontradas"
-
-  # dicionario com todas as materias da unidade
-  materias[codigo] = materias_unidade
-end
-
-materias.each do |unidade, materias_unidade|
-  puts "Processando materias da unidade #{unidade}"
-
-  materias_unidade.each do |codigo, nome|
-    next if codigo.length != 7
-
-    # pagina contendo oferecimento da materia
-    page = Nokogiri::HTML(open("#{URL_TURMAS}#{codigo}"))
-
-    # verifica se existe oferecimento
-    if page.css('div#web_mensagem').text.include? "Não existe oferecimento"
-      puts " - Não existe oferecimento para #{codigo}. Pulando..."
-    else
-      parse_page(page: page, code: codigo, name: nome)
+    # extrai o codigo da materia embutido no link
+    # ex: jupColegiadoMenu.jsp?codcg=86&tipo=D&nomclg=Escola+de+Artes,+Ciências+e+Humanidades
+    # código = 86
+    codigo_unidades = link_unidades.map do |link|
+      link['href'].match(/codcg=(\d+)/)[1]
     end
-  end
+
+    puts "#{codigo_unidades.count} unidades encontradas"
+
+    materias = {}
+    codigo_unidades[0..1].each do |codigo|
+      puts "Obtendo matérias da unidade #{codigo}"
+
+      # pagina contendo todas as materias da unidade
+      page = Nokogiri::HTML(open("#{URL_MATERIAS}#{codigo}"))
+
+      # procura por todos os links contento 'obterDisciplina'
+      link_materias = page.css('a[@href*="obterDisciplina"]')
+
+      # extrai o codigo da materia contido no link e o nome
+      # ex: obterDisciplina?sgldis=ACH2016&verdis=2
+      # codigo = ACH2016
+      materias_unidade = link_materias.map do |link|
+        [link['href'].match(/sgldis=([A-Z0-9]+)/)[1], link.text]
+      end
+
+      puts "#{materias_unidade.count} materias encontradas"
+
+      # dicionario com todas as materias da unidade
+      materias[codigo] = materias_unidade
+    end
+
+    pages = []
+    materias.each do |unidade, materias_unidade|
+      puts "Processando materias da unidade #{unidade}"
+
+      materias_unidade[0..1].each do |codigo, nome|
+        next if codigo.length != 7
+
+        # pagina contendo oferecimento da materia
+        page = Nokogiri::HTML(open("#{URL_TURMAS}#{codigo}"))
+
+        # verifica se existe oferecimento
+        if page.css('div#web_mensagem').text.include? "Não existe oferecimento"
+          puts " - Não existe oferecimento para #{codigo}. Pulando..."
+        else
+          pages.push(CrawlerPage.new(page, codigo, nome))
+        end
+
+      end # materias_unidade.each do |codigo, nome|
+    end # materias.each do |unidade, materias_unidade|
+
+    return pages
+  end # def get_pages
 end

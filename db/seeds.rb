@@ -8,50 +8,18 @@
 #   movies = Movie.create([{ name: 'Star Wars' }, { name: 'Lord of the Rings' }])
 #   Character.create(name: 'Luke', movie: movies.first)
 
-require 'json'
+require_relative '../script/crawler'
+require_relative '../script/parser'
 
-def create_schedule(array, classroom)
-  begin
-    time_end = Time.parse(array[2])
-  rescue ArgumentError
-    time_end = nil
-  end
+include Crawler, Parser
 
-  schedule = Schedule.create(
-    week_day: array[0],
-    time_begin: Time.parse(array[1]),
-    time_end: time_end,
-    teachers: array[3],
-    classroom: classroom)
-end
+# get all subjects pages and parse them into ActiveRecord models
+pages = get_pages.map { |p| parse_page(page: p.page, code: p.code, name: p.name) }
 
-def create_classroom(array, subject)
-  classroom = Classroom.create(
-    code: array[0],
-    date_begin: Date.strptime(array[1], "%d/%m/%Y"),
-    date_end: Date.strptime(array[2], "%d/%m/%Y"),
-    kind: array[3],
-    subject: subject)
-
-  unless array[4].nil?
-    array[4].each do |s|
-      create_schedule(s, classroom)
-    end
-  end
-end
-
-def create_subject(array)
-  subject = Subject.create(
-    code: array[0],
-    name: array[1])
-
-  array[2].each do |c|
-    create_classroom(c, subject)
-  end
-end
-
-Time.zone = "America/Sao_Paulo"
-json = JSON.parse(File.read("db/jupiterweb.json"))["TODOS"]
-json.each do |s|
-  create_subject(s)
+# save all models to database
+pages.each do |p|
+  p.subject.save
+  p.classrooms.map { |c| c.save }
+  p.schedules.flatten.map { |c| c.save }
+  p.schools.flatten.map { |c| c.save }
 end
