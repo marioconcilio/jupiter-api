@@ -3,7 +3,7 @@
 module Parser
   ParsedPage = Struct.new(:subject, :classrooms, :schedules, :schools)
 
-  def parse_classroom(table:, subject: nil)
+  def parse_classroom(table, subject=nil)
     rows = table.search('tr')
     raise 'wrong table!' unless rows.first.text.include? 'Código'
 
@@ -15,16 +15,19 @@ module Parser
     # algumas materias nao contem observacoes
     notes = rows[4].search('td')[1].text.strip unless rows[4].nil?
 
-    return Classroom.new(
+    classroom = Classroom.new(
       code: code,
       date_begin: date_begin,
       date_end: date_end,
       kind: kind,
       notes: notes,
       subject: subject)
+
+    classroom.save
+    return classroom
   end # parse_classroom
 
-  def parse_schedules(table:, classroom: nil)
+  def parse_schedules(table, classroom=nil)
     rows = table.search('tr')
     raise 'wrong table!' unless rows.first.text.include? 'Horário'
 
@@ -38,8 +41,8 @@ module Parser
       tds = rows[i].search('td').map { |td| td.text.strip }
 
       week_day = tds[0]
-      time_begin = tds[1]
-      time_end = tds[2]
+      time_begin = Time.parse(tds[1]).utc
+      time_end = Time.parse(tds[2]).utc
       teachers = [].push(tds[3])
 
       # procura outros professores nas linhas abaixo
@@ -69,18 +72,21 @@ module Parser
       # remove duplicatas
       teachers.uniq!
 
-      schedules.push(Schedule.new(
+      s = Schedule.new(
         week_day: week_day,
         time_begin: time_begin,
         time_end: time_end,
         teachers: teachers,
-        classroom: classroom))
+        classroom: classroom)
+
+      s.save
+      schedules.push(s)
     end # while i < rows.count
 
     return schedules
   end #parse_schedule
 
-  def parse_schools(table:, classroom: nil)
+  def parse_schools(table, classroom=nil)
     rows = table.search('tr')
     raise 'wrong table!' unless rows.first.text.include? 'Vagas'
 
@@ -119,26 +125,32 @@ module Parser
         # guarda o indice j para usar no laço externo
         last_index = j
 
-        schools.push(School.new(
+        s = School.new(
           name: tds[1],
           kind: kind,
           vacancies: data[0],
           inscribed: data[1],
           pending: data[2],
           enrolled: data[3],
-          classroom: classroom))
+          classroom: classroom)
+
+        s.save
+        schools.push(s)
       end # while i < rows.count
 
       # se nao teve nenhuma linha abaixo com descricao da escola
       # adiciona nova escola sem nome, mas com os dados
       unless has_more_lines
-        schools.push(School.new(
+        s = School.new(
           name: '',
           kind: kind,
           vacancies: data[0],
           inscribed: data[1],
           pending: data[2],
-          enrolled: data[3]))
+          enrolled: data[3])
+
+        s.save
+        schools.push(s)
       end # unless has_more_lines
 
       # retoma da ultima linha visitada em busca de escola
@@ -149,20 +161,23 @@ module Parser
     return schools
   end # parse_school
 
-  def parse_subject(code: , name:)
+  def parse_subject(code, name)
     raise 'wrong code!' if code.nil? || code.empty?
     raise 'wrong name!' if name.nil? || name.empty?
 
-    return Subject.new(
+    subject = Subject.new(
       code: code,
       name: name)
+
+    subject.save
+    return subject
   end # parse_subject
 
   def parse_page(page:, code:, name:)
     tables = page.at('td[width="568"]').search('table')
     raise 'wrong page!' if tables.count % 3 != 0
 
-    subject = parse_subject(code: code, name: name)
+    subject = parse_subject(code, name)
 
     classrooms = []
     schedules = []
@@ -170,9 +185,9 @@ module Parser
 
     i = 0
     while i < tables.count
-      classroom = parse_classroom(table: tables[i], subject: subject)
-      schedules.push(parse_schedules(table: tables[i+1], classroom: classroom))
-      schools.push(parse_schools(table: tables[i+2], classroom: classroom))
+      classroom = parse_classroom(tables[i], subject)
+      schedules.push(parse_schedules(tables[i+1], classroom))
+      schools.push(parse_schools(tables[i+2], classroom))
       classrooms.push(classroom)
 
       i += 3

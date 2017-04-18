@@ -7,6 +7,7 @@ describe Schedule, type: :model do
 
   it { should validate_presence_of(:week_day) }
   it { should validate_presence_of(:time_begin) }
+  it { should validate_presence_of(:time_end) }
   it { should validate_presence_of(:teachers) }
   it { should validate_presence_of(:classroom) }
 end

@@ -14,12 +14,5 @@ require_relative '../script/parser'
 include Crawler, Parser
 
 # get all subjects pages and parse them into ActiveRecord models
-pages = get_pages.map { |p| parse_page(page: p.page, code: p.code, name: p.name) }
-
-# save all models to database
-pages.each do |p|
-  p.subject.save
-  p.classrooms.map { |c| c.save }
-  p.schedules.flatten.map { |c| c.save }
-  p.schools.flatten.map { |c| c.save }
-end
+# parser automatically saves models when they are created
+get_pages.each { |p| parse_page(page: p.page, code: p.code, name: p.name) }

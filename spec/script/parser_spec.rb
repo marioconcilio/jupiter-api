@@ -63,11 +63,11 @@ describe Parser do
           end
 
           it 'should have time_begin that matches' do
-            expect(schedule.time_begin.strftime("%H:%M")).to eql('14:00')
+            expect(schedule.time_begin.strftime("%H:%M")).to eql('17:00')
           end
 
           it 'should have time_end that matches' do
-            expect(schedule.time_end.strftime("%H:%M")).to eql('17:50')
+            expect(schedule.time_end.strftime("%H:%M")).to eql('20:50')
           end
 
           it 'should have teachers that matches' do
@@ -83,11 +83,11 @@ describe Parser do
           end
 
           it 'should have time_begin that matches' do
-            expect(schedule.time_begin.strftime("%H:%M")).to eql('16:00')
+            expect(schedule.time_begin.strftime("%H:%M")).to eql('19:00')
           end
 
           it 'should have time_end that matches' do
-            expect(schedule.time_end.strftime("%H:%M")).to eql('18:50')
+            expect(schedule.time_end.strftime("%H:%M")).to eql('21:50')
           end
 
           it 'should have teachers that matches' do
@@ -278,11 +278,11 @@ describe Parser do
           end
 
           it 'should have time_begin that matches' do
-            expect(schedule.time_begin.strftime("%H:%M")).to eql('14:00')
+            expect(schedule.time_begin.strftime("%H:%M")).to eql('17:00')
           end
 
           it 'should have time_end that matches' do
-            expect(schedule.time_end.strftime("%H:%M")).to eql('18:00')
+            expect(schedule.time_end.strftime("%H:%M")).to eql('21:00')
           end
 
           it 'should have teachers that matches' do

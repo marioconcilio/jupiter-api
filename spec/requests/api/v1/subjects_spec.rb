@@ -3,15 +3,14 @@ require 'rails_helper'
 module Api::V1
   describe 'Subjects API v1', type: :request do
     # initialize test data
-    let!(:subjects) { create_list(:subject, 10) }
+    let!(:subjects) { create_list(:subject, 3) }
 
     describe 'GET /api/v1/subjects' do
       before { get '/api/v1/subjects' }
       let(:json) { JSON.parse(response.body) }
 
       it 'returns all subjects' do
-        expect(json['subjects']).not_to be_empty
-        expect(json['subjects'].size).to eq(10)
+        expect(json['subjects'].size).to eq(3)
       end
 
       it 'verifies if each subject have at least one classroom' do
@@ -32,35 +31,26 @@ module Api::V1
         expect(response).to have_http_status(200)
       end
 
-      it 'returns mime data' do
-        expect(json['status']).not_to be_empty
+      it 'returns metadata OK' do
         expect(json['status'].size).to eq(3)
-      end
-
-      it 'returns mime status code 200' do
         expect(json['status']['code']).to eq(200)
-      end
-
-      it 'returns mime message OK' do
         expect(json['status']['message']).to eq('OK')
-      end
-
-      it 'returns mime error false' do
         expect(json['status']['error']).to eq(false)
       end
-
-    end
+    end # describe 'GET /api/v1/subjects'
 
     describe 'GET /api/v1/subjects/:id' do
       before { get "/api/v1/subjects/#{subject_code}" }
       let(:json) { JSON.parse(response.body) }
 
       context 'when the subject exists' do
-        let(:subject_code) { subjects.first.code }
+        let(:subject) { subjects.first }
+        let(:subject_code) { subject.code }
 
         it 'returns the subject' do
           expect(json['subjects']).not_to be_empty
-          expect(json['subjects']['code']).to eq(subject_code)
+          expect(json['subjects']['code']).to eq(subject.code)
+          expect(json['subjects']['name']).to eq(subject.name)
         end
 
         it 'verifies if returned subject have at least one classroom' do
@@ -77,23 +67,13 @@ module Api::V1
           expect(response).to have_http_status(200)
         end
 
-        it 'returns mime data' do
-          expect(json['status']).not_to be_empty
+        it 'returns metadata OK' do
           expect(json['status'].size).to eq(3)
-        end
-
-        it 'returns mime status code 200' do
           expect(json['status']['code']).to eq(200)
-        end
-
-        it 'returns mime message OK' do
           expect(json['status']['message']).to eq('OK')
-        end
-
-        it 'returns mime error false' do
           expect(json['status']['error']).to eq(false)
         end
-      end
+      end # context 'when the subject exists'
 
       context 'when the subject does not exist' do
         let(:subject_code) { '10' }
@@ -102,25 +82,15 @@ module Api::V1
           expect(response).to have_http_status(404)
         end
 
-        it 'returns mime data' do
-          expect(json['status']).not_to be_empty
+        it 'returns metadata Not Found' do
           expect(json['status'].size).to eq(3)
-        end
-
-        it 'returns mime status code 404' do
           expect(json['status']['code']).to eq(404)
-        end
-
-        it 'returns mime message Not Found' do
           expect(json['status']['message']).to eq('Not Found')
-        end
-
-        it 'returns mime error true' do
           expect(json['status']['error']).to eq(true)
         end
 
-      end
-    end
+      end # context 'when the subject does not exist'
+    end # describe 'GET /api/v1/subjects/:id'
 
-  end
-end
+  end # describe 'Subjects API v1'
+end # module
