@@ -30,7 +30,7 @@ module Crawler
     puts "#{codigo_unidades.count} unidades encontradas"
 
     materias = {}
-    codigo_unidades[0..1].each do |codigo|
+    codigo_unidades.each do |codigo|
       puts "Obtendo matérias da unidade #{codigo}"
 
       # pagina contendo todas as materias da unidade
@@ -56,7 +56,7 @@ module Crawler
     materias.each do |unidade, materias_unidade|
       puts "Processando materias da unidade #{unidade}"
 
-      materias_unidade[0..1].each do |codigo, nome|
+      materias_unidade.each do |codigo, nome|
         next if codigo.length != 7
 
         # pagina contendo oferecimento da materia
