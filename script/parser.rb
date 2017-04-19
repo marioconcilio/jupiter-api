@@ -41,8 +41,8 @@ module Parser
       tds = rows[i].search('td').map { |td| td.text.strip }
 
       week_day = tds[0]
-      time_begin = Time.parse(tds[1]).utc
-      time_end = Time.parse(tds[2]).utc
+      time_begin = Time.zone.parse(tds[1]).utc
+      time_end = Time.zone.parse(tds[2]).utc
       teachers = [].push(tds[3])
 
       # procura outros professores nas linhas abaixo
