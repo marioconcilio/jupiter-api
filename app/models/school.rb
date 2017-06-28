@@ -6,5 +6,5 @@ class School < ApplicationRecord
                         :pending,
                         :enrolled
 
-  # belongs_to :classroom
+  belongs_to :classroom
 end

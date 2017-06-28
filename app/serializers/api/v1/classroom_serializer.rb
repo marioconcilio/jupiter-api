@@ -5,10 +5,10 @@ class Api::V1::ClassroomSerializer < ActiveModel::Serializer
              :kind,
              :notes,
              :schedules
-             # :schools
+             :schools
 
   has_many :schedules
-  # has_many :schools
+  has_many :schools
 
   belongs_to :subject
 end

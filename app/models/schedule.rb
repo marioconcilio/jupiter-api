@@ -5,5 +5,5 @@ class Schedule < ApplicationRecord
                         :teachers,
                         :classroom
 
-  # belongs_to :classroom
+  belongs_to :classroom
 end

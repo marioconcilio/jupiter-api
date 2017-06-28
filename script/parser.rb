@@ -206,7 +206,7 @@ module Parser
     while i < tables.count
       classroom = parse_classroom(tables[i], subject)
       schedules.push(parse_schedules(tables[i+1], classroom))
-      # schools.push(parse_schools(tables[i+2], classroom))
+      schools.push(parse_schools(tables[i+2], classroom))
       classrooms.push(classroom)
 
       i += 3
