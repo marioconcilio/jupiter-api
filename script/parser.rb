@@ -5,7 +5,11 @@ module Parser
 
   def parse_classroom(table, subject=nil)
     rows = table.search('tr')
-    raise 'wrong table!' unless rows.first.text.include? 'Código'
+    while not rows.first.text.include? 'Código'
+      rows.shift
+      return nil if rows.first.nil?
+    end
+    return nil if rows.empty?
 
     code = rows[0].search('td')[1].text.strip
     date_begin = rows[1].search('td')[1].text.strip
@@ -29,7 +33,7 @@ module Parser
 
   def parse_schedules(table, classroom=nil)
     rows = table.search('tr')
-    raise 'wrong table!' unless rows.first.text.include? 'Horário'
+    return nil unless rows.first.text.include? 'Horário'
 
     # descarta cabecalho da tabela
     rows.shift
@@ -173,10 +177,25 @@ module Parser
     return subject
   end # parse_subject
 
-  def parse_page(page:, code:, name:)
+  def parse_page(path)
+    page = Nokogiri::HTML(File.read(path, encoding: 'utf-8'))
     tables = page.at('td[width="568"]').search('table')
-    raise 'wrong page!' if tables.count % 3 != 0
+    # raise 'wrong page!' unless tables.count % 3 == 0
+    return nil unless tables.count % 3 == 0
 
+    # procura pelos titulos da pagina
+    # o ultimo contem o nome e o codigo da materia
+    # divide a string no caractere '-''
+    # ex: Disciplina ABC0123 - Testecultura
+    title = page.search('span[class="txt_arial_10pt_black"]').last.text.strip.split(' - ')
+
+    # codigo da materia sao os ultimos 7 caracteres do primeiro elemento da lista
+    # ex: Disciplina ABC0123
+    code = title.first.last(7)
+
+    # nome da materia eh ultimo elemento da lista
+    # ex: Testecultura
+    name = title.last
     subject = parse_subject(code, name)
 
     classrooms = []
@@ -187,11 +206,11 @@ module Parser
     while i < tables.count
       classroom = parse_classroom(tables[i], subject)
       schedules.push(parse_schedules(tables[i+1], classroom))
-      schools.push(parse_schools(tables[i+2], classroom))
+      # schools.push(parse_schools(tables[i+2], classroom))
       classrooms.push(classroom)
 
       i += 3
-    end # i < tables.count
+    end # while
 
     return ParsedPage.new(subject, classrooms, schedules, schools)
   end # parse_page

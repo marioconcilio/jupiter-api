@@ -7,6 +7,6 @@ class Classroom < ApplicationRecord
                         :subject
 
   has_many :schedules, dependent: :destroy
-  has_many :schools, dependent: :destroy
-  belongs_to :subject, optional: true
+  # has_many :schools, dependent: :destroy
+  # belongs_to :subject, optional: true
 end

@@ -30,8 +30,9 @@ gem 'puma', '~> 3.0'
 # gem 'rack-cors'
 
 gem 'rack-attack'
-
 gem 'active_model_serializers'
+gem 'ruby-progressbar'
+gem 'parallel'
 
 group :development, :test do
   # Call 'byebug' anywhere in the code to stop execution and get a debugger console

@@ -4,11 +4,11 @@ class Api::V1::ClassroomSerializer < ActiveModel::Serializer
              :date_end,
              :kind,
              :notes,
-             :schedules,
-             :schools
+             :schedules
+             # :schools
 
   has_many :schedules
-  has_many :schools
+  # has_many :schools
 
   belongs_to :subject
 end

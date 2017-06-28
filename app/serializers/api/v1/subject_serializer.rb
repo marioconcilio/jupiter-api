@@ -1,6 +1,6 @@
 class Api::V1::SubjectSerializer < ActiveModel::Serializer
-  attributes :code, 
-             :name, 
+  attributes :code,
+             :name,
              :classrooms
 
   has_many :classrooms

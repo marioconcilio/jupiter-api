@@ -7,11 +7,7 @@ end
 
 describe Parser do
   context 'when parsing page' do
-    let(:page) do
-      parse_page page: Nokogiri::HTML(File.read('spec/fixtures/ABC0123.html')),
-                 code: 'ABC0123',
-                 name: 'Testecultura'
-    end
+    let(:page) { parse_page 'spec/fixtures/ABC0123.html' }
 
     context 'its subject' do
       let(:subject) { page.subject }

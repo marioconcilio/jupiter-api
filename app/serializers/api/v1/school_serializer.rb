@@ -6,5 +6,5 @@ class Api::V1::SchoolSerializer < ActiveModel::Serializer
              :pending,
              :enrolled
 
-  belongs_to :classroom
+  # belongs_to :classroom
 end

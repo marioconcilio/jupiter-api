@@ -4,7 +4,7 @@ class Api::V1::ScheduleSerializer < ActiveModel::Serializer
              :time_end,
              :teachers
 
-  belongs_to :classroom
+  # belongs_to :classroom
 
   def time_begin
     object.time_begin.strftime("%H:%M:%SZ")
